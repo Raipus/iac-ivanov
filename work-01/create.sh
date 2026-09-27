@@ -15,7 +15,7 @@ yc vpc subnet create \
   --range "$CIDR"
 
 yc compute instance create \
-  --name "$PREFIX-web-1" \
+  --name "$PREFIX-app-1" \
   --zone "$ZONE" \
   --platform standard-v3 \
   --cores=2 \
@@ -24,12 +24,12 @@ yc compute instance create \
   --preemptible \
   --create-boot-disk image-folder-id=standard-images,image-family="$IMAGE_FAMILY",type=network-hdd,size="$DISK_SIZE" \
   --network-interface subnet-name="$PREFIX-subnet",nat-ip-version=ipv4 \
-  --hostname "$PREFIX-web-1" \
+  --hostname "$PREFIX-app-1" \
   --ssh-key ~/.ssh/id_ed25519.pub \
   --labels created-by=cli
 
 yc compute instance create \
-  --name "$PREFIX-web-2" \
+  --name "$PREFIX-app-2" \
   --zone "$ZONE" \
   --platform standard-v3 \
   --cores=2 \
@@ -38,7 +38,7 @@ yc compute instance create \
   --preemptible \
   --create-boot-disk image-folder-id=standard-images,image-family="$IMAGE_FAMILY",type=network-hdd,size="$DISK_SIZE" \
   --network-interface subnet-name="$PREFIX-subnet",nat-ip-version=ipv4 \
-  --hostname "$PREFIX-web-2" \
+  --hostname "$PREFIX-app-2" \
   --ssh-key ~/.ssh/id_ed25519.pub \
   --labels created-by=cli
 
