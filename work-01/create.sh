@@ -3,8 +3,6 @@ export ZONE=ru-central1-a
 export CIDR=10.11.1.0/24
 export DISK_SIZE=15
 export IMAGE_FAMILY=debian-12
-export APP_PORT=8003
-export WORD=labwork
 
 yc vpc network create --name "$PREFIX-net"
 
