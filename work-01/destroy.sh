@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 export PREFIX=ivanov-01
 
 yc compute instance delete "$PREFIX-app-1"

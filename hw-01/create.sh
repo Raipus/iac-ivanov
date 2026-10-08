@@ -71,6 +71,9 @@ fi
 echo "==> файл настройки из шаблона"
 SSH_KEY=$(cat ~/.ssh/id_ed25519.pub)
 export APP_PORT GREETING SSH_KEY
+# envsubst принимает имена переменных буквально: раскрой мы их заранее,
+# подставлять было бы нечего. Одинарные кавычки здесь верны.
+# shellcheck disable=SC2016
 envsubst '${APP_PORT} ${GREETING} ${SSH_KEY}' \
   < hw-01/cloud-init.tpl.yaml > hw-01/cloud-init.yaml
 
@@ -126,7 +129,7 @@ done
 if yc load-balancer target-group get --name "$PREFIX-tg"> /dev/null 2>&1; then
   echo "целевая группа '$PREFIX-tg' уже создана"
 else
-  yc load-balancer target-group create --name "$PREFIX-tg" $TARGETS --labels "env=$ENV_NAME,owner=$PREFIX"
+  yc load-balancer target-group create --name "$PREFIX-tg" "$TARGETS" --labels "env=$ENV_NAME,owner=$PREFIX"
 fi
 
 echo "==> балансировщик"

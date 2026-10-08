@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 export PREFIX=ivanov-01
 export ZONE=ru-central1-a
 export CIDR=10.11.1.0/24

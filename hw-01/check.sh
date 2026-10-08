@@ -2,6 +2,7 @@
 
 # ---- параметры варианта ----
 PREFIX="${1:-ivanov-01}"              # префикс — он же значение labels.owner
+# shellcheck disable=SC2034  # используется в удалённой команде по ssh
 APP_PORT="${2:-8003}"                 # порт, на котором отвечает nginx
 
 # ---- служебное ----
@@ -62,8 +63,8 @@ if [ -z "$WEB_PUB" ] || [ -z "$APP_INT" ]; then
   echo "X не удалось получить адреса (web=$WEB_PUB, app=$APP_INT)"
   FAIL=1
 else
-  RC=$(ssh $SSH_USER@$WEB_PUB \
-         "curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://$APP_INT:$APP_PORT/" \
+  RC=$(ssh "$SSH_USER@$WEB_PUB" \
+         "curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://\$APP_INT:\$APP_PORT/" \
        2>/dev/null || echo 000)
   if [ "$RC" = "200" ]; then
     echo "V сервер приложения доступен с $WEB_PUB"

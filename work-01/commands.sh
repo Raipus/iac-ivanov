@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Журнал вводимых команд (практическая работа №1, вариат 01)
 
 # Переменные
@@ -30,7 +31,8 @@ yc compute instance create \
   --labels created-by=cli
 
 # Получение публичного адреса созданной ВМ
-export VM_IP=$(yc compute instance get "$PREFIX-web-1" --format json \
+export VM_IP
+VM_IP=$(yc compute instance get "$PREFIX-web-1" --format json \
   | jq -r '.network_interfaces[0].primary_v4_address.one_to_one_nat.address')
 
 # Подключение и настройка ВМ
