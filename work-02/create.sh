@@ -4,13 +4,13 @@ set -euo pipefail            # стоп на первой ошибке и на �
 # ---- параметры варианта ----
 PREFIX=ivanov-01             # префикс имён ресурсов
 ZONE_A=ru-central1-a         # зона A
-ZONE_B=ru-central1-b         # зона B
+ZONE_B=ru-central1-d         # зона B
 CIDR_A=10.11.1.0/24          # подсеть в зоне A
 CIDR_B=10.11.2.0/24          # подсеть в зоне B
 APP_PORT=8003                # порт, на котором отвечает nginx
 GREETING=labwork             # слово из варианта, оно же на странице
 VM_COUNT="${1:-2}"           # число машин в группе
-DISK_SIZE="${2:-20}"         # дополнительный диск, ГБ — из варианта
+DISK_SIZE="${2:-5}"         # дополнительный диск, ГБ — из варианта
 BOOT_SIZE=15                 # загрузочный диск, ГБ — из варианта
 IMAGE_FAMILY=ubuntu-2404-lts # образ машин, одинаковый у всех вариантов
 
@@ -45,6 +45,8 @@ for i in $(seq 1 "$VM_COUNT"); do
   if [ "$i" -eq 1 ]; then
     DISK="--attach-disk disk-name=$PREFIX-data,device-name=data"
   fi
+  # $DISK должен развернуться в несколько аргументов.
+  # shellcheck disable=SC2086
   yc compute instance create \
     --name "$PREFIX-app-$i" \
     --zone "${ZONES[$idx]}" \
@@ -55,7 +57,7 @@ for i in $(seq 1 "$VM_COUNT"); do
     --network-interface subnet-name="${SUBNETS[$idx]}",nat-ip-version=ipv4 \
     --hostname "$PREFIX-app-$i" \
     --metadata-from-file user-data=work-02/cloud-init.yaml \
-    "$DISK"
+    $DISK
 done
 
 echo "==> целевая группа"
@@ -69,7 +71,9 @@ for i in $(seq 1 "$VM_COUNT"); do
   TARGETS="$TARGETS --target subnet-name=${SUBNETS[$idx]},address=$IP"
 done
 
-yc load-balancer target-group create --name "$PREFIX-tg" "$TARGETS"
+# $TARGETS должен развернуться в несколько аргументов.
+# shellcheck disable=SC2086
+yc load-balancer target-group create --name "$PREFIX-tg" $TARGETS
 
 echo "==> балансировщик"
 
