@@ -45,6 +45,7 @@ for i in $(seq 1 "$VM_COUNT"); do
   if [ "$i" -eq 1 ]; then
     DISK="--attach-disk disk-name=$PREFIX-data,device-name=data"
   fi
+  # $DISK должен развернуться в несколько аргументов.
   # shellcheck disable=SC2086
   yc compute instance create \
     --name "$PREFIX-app-$i" \
@@ -70,6 +71,7 @@ for i in $(seq 1 "$VM_COUNT"); do
   TARGETS="$TARGETS --target subnet-name=${SUBNETS[$idx]},address=$IP"
 done
 
+# $TARGETS должен развернуться в несколько аргументов.
 # shellcheck disable=SC2086
 yc load-balancer target-group create --name "$PREFIX-tg" $TARGETS
 
