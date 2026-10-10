@@ -6,6 +6,7 @@ stages:
   - proverka
   - stend
 
+# проверка скриптов с правилами запуска
 shellcheck:
   stage: proverka
   image: koalaman/shellcheck-alpine:stable
@@ -14,6 +15,13 @@ shellcheck:
     - shellcheck --version
     - find . -name '*.sh' -print
     - find . -name '*.sh' ! -path ./work-01/commands.sh -exec shellcheck {} +
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - "**/*.sh"
+        # исключаем документацию
+        - "!**/*.md"
+        - "!README*"
 
 # заготовка: утилиты, yc и профиль с ключом из переменной проекта
 .yc:
@@ -54,3 +62,15 @@ stend-p2:
     - export PATH=/usr/local/bin:$PATH
     - echo "Уборка стенда, префикс $PREFIX"
     - bash work-02/destroy.sh
+
+# проверка yaml файлов
+yamllint:
+  stage: proverka
+  image: alpine:3.20
+  before_script:
+  - apk add --no-cache yamllint
+  script:
+    - echo "Вариант 01, слово labwork"
+    - yamllint --version
+    - find . -name '*.yaml' -print
+    - find . -name '*.yaml' -exec yamllint -d relaxed {} +
