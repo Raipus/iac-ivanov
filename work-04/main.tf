@@ -22,9 +22,18 @@ data "yandex_compute_image" "base" {
   family = "debian-12"
 }
 
+# ---------- диск ----------
+resource "yandex_compute_disk" "disk" {
+  name = "ivanov-01-tf-disk"
+  zone = "ru-central1-d"
+  size = 5
+  type = "network-hdd"
+}
+
 # ---------- машина ----------
 
 resource "yandex_compute_instance" "app" {
+  allow_stopping_for_update = true
   name        = "ivanov-01-tf-app"
   hostname    = "ivanov-01-tf-app"
   zone        = "ru-central1-d"
@@ -33,7 +42,7 @@ resource "yandex_compute_instance" "app" {
   resources {
     cores         = 2
     core_fraction = 20
-    memory        = 2
+    memory        = 4
   }
 
   scheduling_policy {
@@ -46,6 +55,10 @@ resource "yandex_compute_instance" "app" {
       size     = 15
       type     = "network-hdd"
     }
+  }
+
+  secondary_disk {
+    disk_id = yandex_compute_disk.disk.id
   }
 
   network_interface {
@@ -63,7 +76,7 @@ resource "yandex_compute_instance" "app" {
   }
 
   labels = {
-    env = "lab"
+    env   = "lab"
     owner = "ivanov-01"
   }
 }
