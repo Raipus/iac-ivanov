@@ -119,6 +119,7 @@ resource "yandex_lb_network_load_balancer" "lb" {
       healthy_threshold   = 2
       http_options {
         port = var.app_port
+        path = "/"
       }
     }
   }
