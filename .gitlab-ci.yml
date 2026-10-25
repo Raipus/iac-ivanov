@@ -54,7 +54,7 @@ stend-p2:
     GREETING: labwork
     RUNNER_AFTER_SCRIPT_TIMEOUT: 15m
   script:
-    - echo "Стенд второй работы из пайплайна, вариант 07, префикс $PREFIX, слово $GREETING"
+    - echo "Стенд второй работы из пайплайна, вариант 01, префикс $PREFIX, слово $GREETING"
     - ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519 -q
     - bash work-02/create.sh
     - bash work-02/check-lb.sh
@@ -75,7 +75,7 @@ yamllint:
     - find . -name '*.yaml' -print
     - find . -name '*.yaml' -exec yamllint -d relaxed {} +
 
-# заготовка: установка terraform
+# заготовка: образ terraform и зеркало провайдеров Яндекса
 .terraform:
   image:
     name: hashicorp/terraform:1.15.8
@@ -95,7 +95,7 @@ yamllint:
       EOF
     - export TF_CLI_CONFIG_FILE=/tmp/terraformrc
 
-# проверка форматирования скриптов
+# формат манифестов Terraform во всём репозитории
 terraform-fmt:
   extends: .terraform
   stage: proverka
@@ -103,7 +103,8 @@ terraform-fmt:
     - echo "Вариант 01, слово labwork"
     - terraform fmt -check -diff -recursive
 
-# проверка 
+# разбор манифеста hw-02; -backend=false ставит провайдеры, не трогая
+# состояние: проверке оно не нужно, а на раннере его и нет
 terraform-validate:
   extends: .terraform
   stage: proverka

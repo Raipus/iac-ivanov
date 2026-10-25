@@ -4,7 +4,7 @@ resource "yandex_vpc_network" "net" {
 }
 
 resource "yandex_vpc_subnet" "subnet_a" {
-    name           = "${local.stand}-subnet-a"
+  name           = "${local.stand}-subnet-a"
   network_id     = yandex_vpc_network.net.id
   v4_cidr_blocks = [var.cidr_a]
   zone           = var.zone_a
@@ -24,14 +24,20 @@ data "yandex_compute_image" "os" {
 }
 
 resource "yandex_compute_instance" "web" {
-  count = 2
+  # число машин задаётся в terraform.tfvars (vm_count). Номер count.index
+  # входит в адрес ресурса в состоянии: при уменьшении числа удаляются
+  # машины с конца списка, а не выбранные
+  count = var.vm_count
 
   name     = "${local.stand}-web-${count.index + 1}"
   hostname = "${local.stand}-web-${count.index + 1}"
 
+  # чётные номера в зону A, нечётные в зону B: машины делятся между зонами,
+  # и отказ одной зоны не гасит весь стенд
   zone = count.index % 2 == 0 ? var.zone_a : var.zone_b
 
   network_interface {
+    # подсеть выбирается по той же чётности: она должна быть в зоне машины
     subnet_id = count.index % 2 == 0 ? yandex_vpc_subnet.subnet_a.id : yandex_vpc_subnet.subnet_b.id
     nat       = true
   }
@@ -74,6 +80,8 @@ resource "yandex_lb_target_group" "tg" {
 
   dynamic "target" {
     for_each = yandex_compute_instance.web
+    # адрес внутренний: балансировщик ходит к машинам по сети облака.
+    # С публичным nat_ip_address группа создастся, но цели не станут HEALTHY
     content {
       subnet_id = target.value.network_interface.0.subnet_id
       address   = target.value.network_interface.0.ip_address
@@ -88,6 +96,7 @@ resource "yandex_lb_network_load_balancer" "lb" {
 
   region_id = "ru-central1"
 
+  # снаружи принимает на 80, на машины передаёт на порт сервиса
   listener {
     name        = "http"
     port        = 80
@@ -100,6 +109,8 @@ resource "yandex_lb_network_load_balancer" "lb" {
   attached_target_group {
     target_group_id = yandex_lb_target_group.tg.id
 
+    # проверка идёт на порт сервиса: на 80 nginx не слушает,
+    # и с проверкой на 80 все цели были бы UNHEALTHY
     healthcheck {
       name                = "http"
       interval            = 2
