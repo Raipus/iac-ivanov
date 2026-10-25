@@ -74,3 +74,39 @@ yamllint:
     - yamllint --version
     - find . -name '*.yaml' -print
     - find . -name '*.yaml' -exec yamllint -d relaxed {} +
+
+# заготовка: установка terraform
+.terraform:
+  image:
+    name: hashicorp/terraform:1.15.8
+    entrypoint: [""]
+  before_script:
+    - |
+      cat > /tmp/terraformrc <<'EOF'
+      provider_installation {
+        network_mirror {
+          url     = "https://terraform-mirror.yandexcloud.net/"
+          include = ["registry.terraform.io/*/*"]
+        }
+        direct {
+          exclude = ["registry.terraform.io/*/*"]
+        }
+      }
+      EOF
+    - export TF_CLI_CONFIG_FILE=/tmp/terraformrc
+
+# проверка форматирования скриптов
+terraform-fmt:
+  extends: .terraform
+  stage: proverka
+  script:
+    - echo "Вариант 01, слово labwork"
+    - terraform fmt -check -diff -recursive
+
+# проверка 
+terraform-validate:
+  extends: .terraform
+  stage: proverka
+  script:
+    - terraform -chdir=hw-02 init -backend=false
+    - terraform -chdir=hw-02 validate
