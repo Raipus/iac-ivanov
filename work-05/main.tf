@@ -1,8 +1,8 @@
 # ---------- сеть ----------
 
 resource "yandex_vpc_network" "net" {
-  name = "${local.stand}-net"
-  labels     = local.common_labels
+  name   = "${local.stand}-net"
+  labels = local.common_labels
 }
 
 resource "yandex_vpc_subnet" "subnet" {
@@ -14,7 +14,7 @@ resource "yandex_vpc_subnet" "subnet" {
   network_id     = yandex_vpc_network.net.id
   v4_cidr_blocks = [var.subnet_cidr]
 
-  labels     = local.common_labels
+  labels = local.common_labels
 }
 
 # ---------- образ ----------
@@ -29,13 +29,13 @@ data "yandex_compute_image" "base" {
 
 resource "yandex_compute_instance" "app" {
   # ключи "1", "2", … по числу машин из варианта
-  for_each = toset([for i in range(var.vm_count) : tostring(i + 1)])
+  for_each                  = toset([for i in range(var.vm_count) : tostring(i + 1)])
   allow_stopping_for_update = true
-  name     = "${local.stand}-app-${each.key}"
-  hostname = "${local.stand}-app-${each.key}"
+  name                      = "${local.stand}-app-${each.key}"
+  hostname                  = "${local.stand}-app-${each.key}"
   # остальное без изменений
-  zone                      = var.zone
-  platform_id               = "standard-v3"
+  zone        = var.zone
+  platform_id = "standard-v3"
 
   resources {
     cores         = 2
@@ -56,8 +56,8 @@ resource "yandex_compute_instance" "app" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.subnet.id
-    nat       = true # публичный адрес
+    subnet_id          = yandex_vpc_subnet.subnet.id
+    nat                = true # публичный адрес
     security_group_ids = [yandex_vpc_security_group.app.id]
   }
 
@@ -66,9 +66,9 @@ resource "yandex_compute_instance" "app" {
     # во второй работе, только без внешней программы.
     # path.module — каталог, в котором лежит этот файл
     user-data = templatefile("${path.module}/cloud-init.tpl.yaml", {
-      ssh_key  = trimspace(file(pathexpand("~/.ssh/id_ed25519.pub")))
-      app_port = var.app_port
-      greeting = var.greeting
+      ssh_key      = trimspace(file(pathexpand("~/.ssh/id_ed25519.pub")))
+      app_port     = var.app_port
+      greeting     = var.greeting
       web_password = var.web_password
     })
   }

@@ -34,10 +34,10 @@ resource "yandex_compute_disk" "disk" {
 
 resource "yandex_compute_instance" "app" {
   allow_stopping_for_update = true
-  name        = "ivanov-01-tf-app"
-  hostname    = "ivanov-01-tf-app"
-  zone        = "ru-central1-d"
-  platform_id = "standard-v3"
+  name                      = "ivanov-01-tf-app"
+  hostname                  = "ivanov-01-tf-app"
+  zone                      = "ru-central1-d"
+  platform_id               = "standard-v3"
 
   resources {
     cores         = 2
