@@ -52,9 +52,9 @@ variable "env" {
 }
 
 variable "web_password" {
-    description = "Пароль к странице приложения"
-    type        = string
-    sensitive   = true
+  description = "Пароль к странице приложения"
+  type        = string
+  sensitive   = true
 }
 
 variable "open_ports" {

@@ -1,4 +1,4 @@
-prefix       = "ivanov-01"
+prefix = "ivanov-01"
 # зоны варианта ru-central1-a и ru-central1-b заменены на ru-central1-d
 # и ru-central1-e из-за ограничений ресурсов облака
 zone_a       = "ru-central1-d"
